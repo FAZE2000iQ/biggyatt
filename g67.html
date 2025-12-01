@@ -1,550 +1,812 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
-<head></head>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Elite Gamez</title>
+	<style>
+		:root {
+			--bg: #0b0b0b;
+			--header-bg: #111;
+			--text: #ffffff;
+			--muted: #cccccc;
+			--accent: #ff6600;
+			--accent-dark: #ff3300;
+			--accent-shadow: rgba(255, 102, 0, 0.2);
+			--card-bg: #000000;
+			--card-radius: 10px;
+			--card-shadow: 0 0 10px rgba(255, 102, 0, 0.2);
+			--glow-size: 15px;
+			--glow-strength: 0.25;
+			--font-family: Arial, Helvetica, sans-serif;
+			--snow-color: rgba(255, 255, 255, 0.95);
+			--snow-count: 150;
+			--snow-size: 3;
+			--snow-speed: 1.2;
+		}
+
+		body {
+			margin: 0;
+			font-family: var(--font-family);
+			background: var(--bg);
+			color: var(--text);
+		}
+
+		#snowCanvas {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			z-index: -1;
+			mix-blend-mode: screen;
+		}
+
+		header {
+			position: fixed;
+			top: 20px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: calc(100% - 40px);
+			background: var(--header-bg);
+			padding: 1rem;
+			display: flex;
+			align-items: center;
+			gap: 0.8rem;
+			z-index: 100;
+			box-shadow: 0 0 20px var(--accent-shadow);
+			border-radius: 12px;
+		}
+
+		header h1 {
+			margin: 0;
+			color: var(--accent);
+			flex-shrink: 0;
+		}
+
+		header input {
+			flex: 1;
+			padding: 0.6rem 0.9rem;
+			border-radius: 25px;
+			border: none;
+			outline: none;
+			background: rgba(255, 255, 255, 0.03);
+			color: var(--text);
+		}
+
+		header button {
+			background: var(--accent);
+			border: none;
+			border-radius: 8px;
+			padding: 0.6rem 1rem;
+			color: #fff;
+			cursor: pointer;
+			font-weight: bold;
+		}
+
+		#discordBtn {
+			background: #7289da;
+		}
+
+		#discordBtn:hover {
+			background: #5b6eae;
+		}
+
+		#customizeBtn {
+			background: transparent;
+			border: 2px solid rgba(255, 255, 255, 0.06);
+			color: var(--text);
+			padding: 0.5rem;
+			border-radius: 8px;
+		}
+
+		#gameInfo {
+			padding: 8rem 2rem 0.5rem 2rem;
+			color: var(--accent);
+			font-weight: bold;
+			font-size: 1rem;
+		}
+
+		#gameInfo p {
+			margin: 0;
+		}
+
+		#gameContainer {
+			padding: 0 2rem 2rem 2rem;
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+			gap: 0.8rem;
+			justify-content: center;
+		}
+
+		.game-card {
+			background: var(--card-bg);
+			border-radius: var(--card-radius);
+			padding: 1rem;
+			text-align: center;
+			box-shadow: var(--card-shadow);
+			transition: 0.2s;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			width: 100%;
+			max-width: 250px;
+			box-sizing: border-box;
+		}
+
+		.game-card:hover {
+			transform: scale(1.05);
+			box-shadow: 0 0 calc(var(--glow-size)) rgba(255, 102, 0, var(--glow-strength));
+		}
+
+		.game-card img {
+			width: 100%;
+			height: 140px;
+			object-fit: cover;
+			border-radius: 8px;
+			margin-bottom: 0.5rem;
+			cursor: pointer;
+		}
+
+		.game-card h2 {
+			margin: 0.5rem 0 0;
+			font-size: 1.1rem;
+			text-align: center;
+		}
+
+		.game-card p {
+			font-size: 0.9rem;
+			color: var(--muted);
+			text-align: center;
+			margin-top: 0.3rem;
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			background: rgba(0, 0, 0, 0.95);
+			justify-content: center;
+			align-items: center;
+			z-index: 999;
+			overflow: auto;
+		}
+
+		.modal-content {
+			background: var(--card-bg);
+			max-width: 90vw;
+			width: 900px;
+			border-radius: 12px;
+			padding: 1rem 1.5rem;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			position: relative;
+			box-shadow: 0 0 25px var(--accent-shadow);
+			text-align: center;
+		}
+
+		#gameTitle {
+			margin: 0 0 1rem;
+			color: var(--accent);
+			font-size: 1.5rem;
+		}
+
+		#gameFrame {
+			width: 100%;
+			height: 60vh;
+			border: 2px solid var(--accent);
+			border-radius: 8px;
+			margin-bottom: 1rem;
+		}
+
+		.controls {
+			display: flex;
+			gap: 1rem;
+			flex-wrap: wrap;
+			justify-content: center;
+			margin-bottom: 1rem;
+		}
+
+		.controls button {
+			background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+			border: none;
+			border-radius: 6px;
+			color: #fff;
+			padding: 0.8rem 1.2rem;
+			font-weight: bold;
+			cursor: pointer;
+			transition: 0.2s;
+		}
+
+		.controls button:hover {
+			transform: scale(1.05);
+			box-shadow: 0 0 15px var(--accent-shadow);
+		}
+
+		.modal-content button#closeModal {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background: var(--accent);
+			border: none;
+			border-radius: 50%;
+			color: #fff;
+			width: 40px;
+			height: 40px;
+			font-size: 1.5rem;
+			font-weight: bold;
+			line-height: 1;
+			cursor: pointer;
+			z-index: 1000;
+			transition: background 0.2s, transform 0.2s;
+		}
+
+		.modal-content button#closeModal:hover {
+			background: var(--accent-dark);
+			transform: scale(1.1);
+		}
+
+		.settings-panel-large {
+			display: none;
+			position: fixed;
+			top: 64px;
+			right: 24px;
+			width: 920px;
+			max-width: calc(100% - 48px);
+			background: var(--card-bg);
+			color: var(--text);
+			border-radius: 12px;
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+			z-index: 1200;
+			padding: 14px;
+			font-size: 14px;
+			overflow: hidden;
+		}
+
+		.settings-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+			margin-bottom: 10px;
+			cursor: move;
+		}
+
+		.settings-title {
+			font-size: 18px;
+			color: var(--accent);
+			margin: 0;
+			font-weight: 700;
+		}
+
+		.settings-close {
+			background: transparent;
+			border: 1px solid rgba(255, 255, 255, 0.06);
+			padding: 6px 10px;
+			border-radius: 8px;
+			color: var(--text);
+			cursor: pointer;
+		}
+
+		.settings-body {
+			max-height: 62vh;
+			overflow: auto;
+			padding-right: 8px;
+		}
+
+		.section {
+			margin-bottom: 12px;
+		}
+
+		.section h4 {
+			margin: 0 0 6px 0;
+			color: var(--muted);
+			font-size: 13px;
+		}
+
+		.row {
+			display: flex;
+			gap: 12px;
+			flex-wrap: wrap;
+		}
+
+		.col {
+			flex: 1;
+			min-width: 180px
+		}
+
+		.label {
+			display: block;
+			margin-bottom: 6px;
+			color: var(--muted);
+			font-size: 13px
+		}
+
+		input[type="color"],
+		input[type="range"],
+		select,
+		input[type="number"] {
+			width: 100%;
+			padding: 8px;
+			border-radius: 8px;
+			border: none;
+			background: rgba(255, 255, 255, 0.02);
+			color: var(--text)
+		}
+
+		.small {
+			width: 120px
+		}
+
+		.actions {
+			display: flex;
+			gap: 8px;
+			justify-content: flex-end;
+			margin-top: 8px
+		}
+
+		.btn-primary {
+			background: var(--accent);
+			border: none;
+			color: #fff;
+			padding: 8px 12px;
+			border-radius: 8px;
+			cursor: pointer
+		}
+
+		.btn-ghost {
+			background: transparent;
+			border: 1px solid rgba(255, 255, 255, 0.06);
+			color: var(--text);
+			padding: 8px 12px;
+			border-radius: 8px;
+			cursor: pointer
+		}
+
+		@media (max-width:980px) {
+			.settings-panel-large {
+				left: 12px;
+				right: 12px;
+				top: 72px;
+				width: calc(100% - 24px)
+			}
+		}
+
+		.music-player {
+			position: fixed;
+			bottom: 20px;
+			right: 20px;
+			width: 280px;
+			background: rgba(0, 0, 0, 0.75);
+			backdrop-filter: blur(10px);
+			border: 1px solid var(--accent-dark);
+			border-radius: 20px;
+			box-shadow: 0 0 20px var(--accent-shadow), 0 0 8px rgba(0, 0, 0, 0.8);
+			padding: 15px 20px;
+			z-index: 1000;
+			color: var(--text);
+			font-family: var(--font-family);
+		}
+
+		.player-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 12px;
+			padding-bottom: 8px;
+			box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05)
+		}
+
+		#currentTrackTitle {
+			font-size: 16px;
+			font-weight: 700;
+			color: var(--accent);
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			max-width: 200px;
+			text-shadow: 0 0 4px var(--accent-shadow)
+		}
+
+		.player-controls {
+			display: flex;
+			align-items: center;
+			gap: 12px
+		}
+
+		#togglePlaylistBtn {
+			background: transparent;
+			border: none;
+			color: var(--text);
+			padding: 6px;
+			border-radius: 8px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center
+		}
+
+		#togglePlaylistBtn svg {
+			width: 20px;
+			height: 20px;
+			fill: var(--text)
+		}
+
+		.control-btn,
+		.play-btn {
+			background: rgba(255, 255, 255, 0.08);
+			border: none;
+			color: var(--text);
+			border-radius: 10px;
+			cursor: pointer;
+			transition: background 0.3s, box-shadow 0.3s, transform 0.1s;
+			flex-shrink: 0;
+			box-shadow: 0 0 5px var(--accent-shadow)
+		}
+
+		#repeatShuffleBtn.active {
+			background: #00ffcc;
+			color: var(--text);
+			box-shadow: 0 0 10px #00ffcc
+		}
+
+		.control-btn {
+			padding: 8px 14px;
+			font-size: 14px;
+			font-weight: bold
+		}
+
+		.play-btn {
+			width: 40px;
+			height: 40px;
+			padding: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+			background: var(--accent-dark)
+		}
+
+		.play-btn svg {
+			fill: var(--text);
+			width: 20px;
+			height: 20px
+		}
+
+		.volume-slider-container {
+			flex-grow: 1;
+			display: flex;
+			align-items: center
+		}
+
+		#volumeSlider {
+			appearance: none;
+			width: 100%;
+			height: 6px;
+			background: rgba(255, 255, 255, 0.15);
+			outline: none;
+			border-radius: 3px
+		}
+
+		#volumeSlider::-webkit-slider-thumb {
+			appearance: none;
+			width: 16px;
+			height: 16px;
+			border-radius: 50%;
+			background: var(--accent);
+			cursor: pointer;
+			box-shadow: 0 0 10px var(--accent-shadow);
+			border: 3px solid var(--bg)
+		}
+
+		.playlist-menu {
+			position: fixed;
+			bottom: 220px;
+			right: 20px;
+			width: 320px;
+			max-height: 400px;
+			background: var(--card-bg);
+			border: 1px solid var(--accent-dark);
+			border-radius: 20px;
+			box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), 0 0 10px var(--accent-shadow);
+			z-index: 999;
+			display: none;
+			flex-direction: column;
+			overflow: hidden
+		}
+
+		.playlist-menu-header {
+			padding: 15px;
+			font-size: 18px;
+			font-weight: 700;
+			color: var(--accent);
+			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+			background: rgba(0, 0, 0, 0.7);
+			backdrop-filter: blur(5px);
+			position: sticky;
+			top: 0
+		}
+
+		.playlist-menu-list {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+			overflow-y: auto;
+			color: var(--text)
+		}
+
+		.playlist-item {
+			display: flex;
+			align-items: center;
+			padding: 10px 15px;
+			cursor: pointer;
+			transition: background 0.2s;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.02)
+		}
+
+		.playlist-item:hover {
+			background: rgba(255, 255, 255, 0.05)
+		}
+
+		.playlist-item.active {
+			background: rgba(255, 102, 0, 0.1);
+			border-left: 3px solid var(--accent);
+			padding-left: 12px
+		}
+
+		.playlist-item-art {
+			width: 40px;
+			height: 40px;
+			border-radius: 5px;
+			margin-right: 10px;
+			object-fit: cover
+		}
+
+		.playlist-item-info {
+			flex-grow: 1;
+			overflow: hidden
+		}
+
+		.playlist-item-title {
+			font-size: 14px;
+			font-weight: 600;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis
+		}
+
+		.playlist-item-artist {
+			font-size: 12px;
+			color: var(--muted);
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis
+		}
+
+		@media (max-width:500px) {
+			.music-player {
+				width: calc(100% - 40px);
+				bottom: 10px;
+				right: 10px;
+				left: 20px;
+				padding: 10px 15px
+			}
+
+			.playlist-menu {
+				width: calc(100% - 40px);
+				bottom: 150px;
+				right: 20px
+			}
+		}
+	</style>
+</head>
 
 <body>
-	<!DOCTYPE html>
-	<html lang="en">
 
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width,initial-scale=1" />
-		<title>Elite Gamez</title>
-		<style>
-			:root {
-				--bg: #0b0b0b;
-				--header-bg: #111;
-				--text: #ffffff;
-				--muted: #cccccc;
-				--accent: #ff6600;
-				--accent-dark: #ff3300;
-				--accent-shadow: rgba(255, 102, 0, 0.2);
-				--card-bg: #000000;
-				--card-radius: 10px;
-				--card-shadow: 0 0 10px rgba(255, 102, 0, 0.2);
-				--glow-size: 15px;
-				--glow-strength: 0.25;
-				--font-family: Arial, Helvetica, sans-serif;
-				--snow-color: rgba(255, 255, 255, 0.95);
-				--snow-count: 150;
-				--snow-size: 3;
-				--snow-speed: 1.2;
-			}
+	<canvas id="snowCanvas"></canvas>
 
-			body {
-				margin: 0;
-				font-family: var(--font-family);
-				background: var(--bg);
-				color: var(--text);
-			}
+	<header>
+		<h1>Elite Gamez</h1>
+		<input type="text" id="searchInput" placeholder="Search games...">
+		<button id="discordBtn">Join Discord</button>
+		<button id="customizeBtn">Customize</button>
+	</header>
 
-			#snowCanvas {
-				position: fixed;
-				top: 0;
-				left: 0;
-				width: 100%;
-				height: 100%;
-				pointer-events: none;
-				z-index: -1;
-				mix-blend-mode: screen;
-			}
+	<div id="gameInfo">
+		<p>Games: 0</p>
+	</div>
+	<div id="gameContainer"></div>
 
-			header {
-				position: fixed;
-				top: 20px;
-				left: 50%;
-				transform: translateX(-50%);
-				width: calc(100% - 40px);
-				background: var(--header-bg);
-				padding: 1rem;
-				display: flex;
-				align-items: center;
-				gap: 0.8rem;
-				z-index: 100;
-				box-shadow: 0 0 20px var(--accent-shadow);
-				border-radius: 12px;
-			}
-
-			header h1 {
-				margin: 0;
-				color: var(--accent);
-				flex-shrink: 0;
-			}
-
-			header input {
-				flex: 1;
-				padding: 0.6rem 0.9rem;
-				border-radius: 25px;
-				border: none;
-				outline: none;
-				background: rgba(255, 255, 255, 0.03);
-				color: var(--text);
-			}
-
-			header button {
-				background: var(--accent);
-				border: none;
-				border-radius: 8px;
-				padding: 0.6rem 1rem;
-				color: #fff;
-				cursor: pointer;
-				font-weight: bold;
-			}
-
-			#discordBtn {
-				background: #7289da;
-			}
-
-			#discordBtn:hover {
-				background: #5b6eae;
-			}
-
-			#customizeBtn {
-				background: transparent;
-				border: 2px solid rgba(255, 255, 255, 0.06);
-				color: var(--text);
-				padding: 0.5rem;
-				border-radius: 8px;
-			}
-
-			#gameInfo {
-				padding: 8rem 2rem 0.5rem 2rem;
-				color: var(--accent);
-				font-weight: bold;
-				font-size: 1rem;
-			}
-
-			#gameInfo p {
-				margin: 0;
-			}
-
-			#gameContainer {
-				padding: 0 2rem 2rem 2rem;
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-				gap: 0.8rem;
-				justify-content: center;
-			}
-
-			.game-card {
-				background: var(--card-bg);
-				border-radius: var(--card-radius);
-				padding: 1rem;
-				text-align: center;
-				box-shadow: var(--card-shadow);
-				transition: 0.2s;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				width: 100%;
-				max-width: 250px;
-				box-sizing: border-box;
-			}
-
-			.game-card:hover {
-				transform: scale(1.05);
-				box-shadow: 0 0 calc(var(--glow-size)) rgba(255, 102, 0, var(--glow-strength));
-			}
-
-			.game-card img {
-				width: 100%;
-				height: 140px;
-				object-fit: cover;
-				border-radius: 8px;
-				margin-bottom: 0.5rem;
-				cursor: pointer;
-			}
-
-			.game-card h2 {
-				margin: 0.5rem 0 0;
-				font-size: 1.1rem;
-				text-align: center;
-			}
-
-			.game-card p {
-				font-size: 0.9rem;
-				color: var(--muted);
-				text-align: center;
-				margin-top: 0.3rem;
-			}
-
-			.modal {
-				display: none;
-				position: fixed;
-				top: 0;
-				left: 0;
-				width: 100vw;
-				height: 100vh;
-				background: rgba(0, 0, 0, 0.95);
-				justify-content: center;
-				align-items: center;
-				z-index: 999;
-				overflow: auto;
-			}
-
-			.modal-content {
-				background: var(--card-bg);
-				max-width: 90vw;
-				width: 900px;
-				border-radius: 12px;
-				padding: 1rem 1.5rem;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				position: relative;
-				box-shadow: 0 0 25px var(--accent-shadow);
-				text-align: center;
-			}
-
-			#gameTitle {
-				margin: 0 0 1rem;
-				color: var(--accent);
-				font-size: 1.5rem;
-			}
-
-			#gameFrame {
-				width: 100%;
-				height: 60vh;
-				border: 2px solid var(--accent);
-				border-radius: 8px;
-				margin-bottom: 1rem;
-			}
-
-			.controls {
-				display: flex;
-				gap: 1rem;
-				flex-wrap: wrap;
-				justify-content: center;
-				margin-bottom: 1rem;
-			}
-
-			.controls button {
-				background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-				border: none;
-				border-radius: 6px;
-				color: #fff;
-				padding: 0.8rem 1.2rem;
-				font-weight: bold;
-				cursor: pointer;
-				transition: 0.2s;
-			}
-
-			.controls button:hover {
-				transform: scale(1.05);
-				box-shadow: 0 0 15px var(--accent-shadow);
-			}
-
-			.modal-content button#closeModal {
-				position: absolute;
-				top: 15px;
-				right: 15px;
-				background: var(--accent);
-				border: none;
-				border-radius: 50%;
-				color: #fff;
-				width: 40px;
-				height: 40px;
-				font-size: 1.5rem;
-				font-weight: bold;
-				line-height: 1;
-				cursor: pointer;
-				z-index: 1000;
-				transition: background 0.2s, transform 0.2s;
-			}
-
-			.modal-content button#closeModal:hover {
-				background: var(--accent-dark);
-				transform: scale(1.1);
-			}
-
-			.settings-panel-large {
-				display: none;
-				position: fixed;
-				top: 64px;
-				right: 24px;
-				width: 920px;
-				max-width: calc(100% - 48px);
-				background: var(--card-bg);
-				color: var(--text);
-				border-radius: 12px;
-				box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-				z-index: 1200;
-				padding: 14px;
-				font-size: 14px;
-				overflow: hidden;
-			}
-
-			.settings-header {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				gap: 12px;
-				margin-bottom: 10px;
-				cursor: move;
-			}
-
-			.settings-title {
-				font-size: 18px;
-				color: var(--accent);
-				margin: 0;
-				font-weight: 700;
-			}
-
-			.settings-close {
-				background: transparent;
-				border: 1px solid rgba(255, 255, 255, 0.06);
-				padding: 6px 10px;
-				border-radius: 8px;
-				color: var(--text);
-				cursor: pointer;
-			}
-
-			.settings-body {
-				max-height: 62vh;
-				overflow: auto;
-				padding-right: 8px;
-			}
-
-			.section {
-				margin-bottom: 12px;
-			}
-
-			.section h4 {
-				margin: 0 0 6px 0;
-				color: var(--muted);
-				font-size: 13px;
-			}
-
-			.row {
-				display: flex;
-				gap: 12px;
-				flex-wrap: wrap;
-			}
-
-			.col {
-				flex: 1;
-				min-width: 180px
-			}
-
-			.label {
-				display: block;
-				margin-bottom: 6px;
-				color: var(--muted);
-				font-size: 13px
-			}
-
-			input[type="color"],
-			input[type="range"],
-			select,
-			input[type="number"] {
-				width: 100%;
-				padding: 8px;
-				border-radius: 8px;
-				border: none;
-				background: rgba(255, 255, 255, 0.02);
-				color: var(--text)
-			}
-
-			.small {
-				width: 120px
-			}
-
-			.actions {
-				display: flex;
-				gap: 8px;
-				justify-content: flex-end;
-				margin-top: 8px
-			}
-
-			.btn-primary {
-				background: var(--accent);
-				border: none;
-				color: #fff;
-				padding: 8px 12px;
-				border-radius: 8px;
-				cursor: pointer
-			}
-
-			.btn-ghost {
-				background: transparent;
-				border: 1px solid rgba(255, 255, 255, 0.06);
-				color: var(--text);
-				padding: 8px 12px;
-				border-radius: 8px;
-				cursor: pointer
-			}
-
-			@media (max-width:980px) {
-				.settings-panel-large {
-					left: 12px;
-					right: 12px;
-					top: 72px;
-					width: calc(100% - 24px)
-				}
-			}
-		</style>
-	</head>
-
-	<body>
-
-		<canvas id="snowCanvas"></canvas>
-
-		<header>
-			<h1>Elite Gamez</h1>
-			<input type="text" id="searchInput" placeholder="Search games...">
-			<button id="discordBtn">Join Discord</button>
-			<button id="customizeBtn">Customize</button>
-		</header>
-
-		<div id="gameInfo">
-			<p>Games: 0</p>
-		</div>
-		<div id="gameContainer"></div>
-
-		<div class="modal" id="gameModal">
-			<div class="modal-content">
-				<button id="closeModal">&times;</button>
-				<h2 id="gameTitle"></h2>
-				<iframe id="gameFrame" src="" frameborder="0"></iframe>
-				<div class="controls">
-					<button id="downloadBtn">Download</button>
-					<button id="fullscreenBtn">Fullscreen</button>
-					<button id="aboutBlankBtn">Open in About:blank</button>
-					<button id="blobBtn">Open in Blob URL</button>
-				</div>
+	<div class="modal" id="gameModal">
+		<div class="modal-content">
+			<button id="closeModal">&times;</button>
+			<h2 id="gameTitle"></h2>
+			<iframe id="gameFrame" src="" frameborder="0"></iframe>
+			<div class="controls">
+				<button id="downloadBtn">Download</button>
+				<button id="fullscreenBtn">Fullscreen</button>
+				<button id="aboutBlankBtn">Open in About:blank</button>
+				<button id="blobBtn">Open in Blob URL</button>
 			</div>
 		</div>
+	</div>
 
-		<div class="settings-panel-large" id="settingsPanel" role="dialog" aria-label="Site customization">
-			<div class="settings-header" id="settingsDrag">
-				<div style="display:flex;gap:12px;align-items:center">
-					<span class="settings-title">Site Customization</span>
-					<small style="color:var(--muted)">(drag header to move)</small>
-				</div>
-				<div></div>
+	<div class="settings-panel-large" id="settingsPanel" role="dialog" aria-label="Site customization">
+		<div class="settings-header" id="settingsDrag">
+			<div style="display:flex;gap:12px;align-items:center">
+				<span class="settings-title">Site Customization</span>
+				<small style="color:var(--muted)">(drag header to move)</small>
 			</div>
+			<div></div>
+		</div>
 
-			<div class="settings-body">
-				<div class="section">
-					<h4>Presets & Quick Actions</h4>
-					<div class="row">
-						<div class="col" style="display:flex;gap:8px;flex-wrap:wrap">
-							<button class="btn-primary" data-preset="Inferno">Inferno</button>
-							<button class="btn-primary" data-preset="mathias">mathias</button>
-							<button class="btn-primary" data-preset="kirby">kirby</button>
-							<button class="btn-primary" data-preset="Ocean">Ocean</button>
-							<button class="btn-primary" data-preset="Neon">Neon</button>
-							<button class="btn-primary" data-preset="Retro">Retro</button>
-							<button class="btn-ghost" data-preset="Dark">Dark</button>
-							<button class="btn-ghost" data-preset="Light">Light</button>
-						</div>
-						<div class="col" style="display:flex;justify-content:flex-end;align-items:center">
-							<button class="btn-primary" id="exportBtn">Export JSON</button>
-							<button class="btn-ghost" id="importBtn">Import JSON</button>
-							<input type="file" id="importFile" accept=".json" style="display:none" />
-							<button class="btn-ghost" id="resetBtn">Reset Defaults</button>
-						</div>
+		<div class="settings-body">
+			<div class="section">
+				<h4>Presets & Quick Actions</h4>
+				<div class="row">
+					<div class="col" style="display:flex;gap:8px;flex-wrap:wrap">
+						<button class="btn-primary" data-preset="Inferno">Inferno</button>
+						<button class="btn-primary" data-preset="mathias">mathias</button>
+						<button class="btn-primary" data-preset="kirby">kirby</button>
+						<button class="btn-primary" data-preset="Ocean">Ocean</button>
+						<button class="btn-primary" data-preset="Neon">Neon</button>
+						<button class="btn-primary" data-preset="Retro">Retro</button>
+						<button class="btn-ghost" data-preset="Dark">Dark</button>
+						<button class="btn-ghost" data-preset="Light">Light</button>
+					</div>
+					<div class="col" style="display:flex;justify-content:flex-end;align-items:center">
+						<button class="btn-primary" id="exportBtn">Export JSON</button>
+						<button class="btn-ghost" id="importBtn">Import JSON</button>
+						<input type="file" id="importFile" accept=".json" style="display:none" />
+						<button class="btn-ghost" id="resetBtn">Reset Defaults</button>
 					</div>
 				</div>
+			</div>
 
-				<div class="section">
-					<h4>Colors & Typography</h4>
-					<div class="row">
+			<div class="section">
+				<h4>Colors & Typography</h4>
+				<div class="row">
+					<div class="col">
+						<label class="label">Background color</label>
+						<input id="bgColor" type="color" value="#0b0b0b">
+				</div>
 						<div class="col">
-							<label class="label">Background color</label>
-							<input id="bgColor" type="color" value="#0b0b0b">
+							<label class="label">Header color</label>
+							<input id="headerColor" type="color" value="#111111">
 				</div>
 							<div class="col">
-								<label class="label">Header color</label>
-								<input id="headerColor" type="color" value="#111111">
+								<label class="label">Text color</label>
+								<input id="textColor" type="color" value="#ffffff">
 				</div>
 								<div class="col">
-									<label class="label">Text color</label>
-									<input id="textColor" type="color" value="#ffffff">
+									<label class="label">Muted / Secondary text</label>
+									<input id="mutedColor" type="color" value="#cccccc">
 				</div>
-									<div class="col">
-										<label class="label">Muted / Secondary text</label>
-										<input id="mutedColor" type="color" value="#cccccc">
-				</div>
-									</div>
+								</div>
 
-									<div class="row" style="margin-top:10px">
+								<div class="row" style="margin-top:10px">
+									<div class="col">
+										<label class="label">Accent color</label>
+										<input id="accentColor" type="color" value="#ff6600">
+				</div>
 										<div class="col">
-											<label class="label">Accent color</label>
-											<input id="accentColor" type="color" value="#ff6600">
+											<label class="label">Accent dark</label>
+											<input id="accentDark" type="color" value="#ff3300">
 				</div>
 											<div class="col">
-												<label class="label">Accent dark</label>
-												<input id="accentDark" type="color" value="#ff3300">
+												<label class="label">Glow (shadow) color</label>
+												<input id="glowColor" type="color" value="#ff6600">
 				</div>
 												<div class="col">
-													<label class="label">Glow (shadow) color</label>
-													<input id="glowColor" type="color" value="#ff6600">
+													<label class="label">Card background</label>
+													<input id="cardBg" type="color" value="#000000">
 				</div>
-													<div class="col">
-														<label class="label">Card background</label>
-														<input id="cardBg" type="color" value="#000000">
-				</div>
-													</div>
+												</div>
 
-													<div class="row" style="margin-top:10px">
-														<div class="col">
-															<label class="label">Font family</label>
-															<select id="fontFamily">
+												<div class="row" style="margin-top:10px">
+													<div class="col">
+														<label class="label">Font family</label>
+														<select id="fontFamily">
 						<option value="Arial, Helvetica, sans-serif">System - Arial</option>
 						<option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI</option>
 						<option value="'Roboto', Arial, sans-serif">Roboto</option>
 						<option value="'VT323', monospace">VT323 (gamey)</option>
 						<option value="'Press Start 2P', cursive">Press Start (pixel)</option>
 					</select>
-														</div>
-														<div class="col">
-															<label class="label">Card radius (px)</label>
-															<input id="cardRadius" type="range" min="0" max="40" value="10">
+</div>
+<div class="col">
+<label class="label">Card radius (px)</label>
+<input id="cardRadius" type="range" min="0" max="40" value="10">
 				</div>
-															<div class="col">
-																<label class="label">Glow size (px)</label>
-																<input id="glowSize" type="range" min="4" max="60" value="15">
+<div class="col">
+<label class="label">Glow size (px)</label>
+<input id="glowSize" type="range" min="4" max="60" value="15">
 				</div>
-																<div class="col">
-																	<label class="label">Glow strength (0-1)</label>
-																	<input id="glowStrength" type="range" min="0" max="1" step="0.01" value="0.25">
+<div class="col">
+ <label class="label">Glow strength (0-1)</label>
+ <input id="glowStrength" type="range" min="0" max="1" step="0.01" value="0.25">
 				</div>
-																</div>
-															</div>
+       </div>
+      </div>
 
-															<div class="section">
-																<h4>Snow & Particles</h4>
-																<div class="row">
-																	<div class="col">
-																		<label class="label">Snow color</label>
-																		<input id="snowColor" type="color" value="#ffffff">
+<div class="section">
+ <h4>Snow & Particles</h4>
+ <div class="row">
+  <div class="col">
+   <label class="label">Snow color</label>
+   <input id="snowColor" type="color" value="#ffffff">
 				</div>
-																		<div class="col">
-																			<label class="label">Snow count: <span id="snowCountLabel">150</span></label>
-																			<input id="snowCount" type="range" min="0" max="400" value="150">
+<div class="col">
+ <label class="label">Snow count: <span id="snowCountLabel">150</span></label>
+ <input id="snowCount" type="range" min="0" max="400" value="150">
 				</div>
-																			<div class="col">
-																				<label class="label">Snow size: <span id="snowSizeLabel">3</span></label>
-																				<input id="snowSize" type="range" min="1" max="10" value="3">
+ <div class="col">
+  <label class="label">Snow size: <span id="snowSizeLabel">3</span></label>
+  <input id="snowSize" type="range" min="1" max="10" value="3">
 				</div>
-																				<div class="col">
-																					<label class="label">Snow speed: <span id="snowSpeedLabel">1.2</span></label>
-																					<input id="snowSpeed" type="range" min="0.2" max="4" step="0.1" value="1.2">
+ <div class="col">
+  <label class="label">Snow speed: <span id="snowSpeedLabel">1.2</span></label>
+  <input id="snowSpeed" type="range" min="0.2" max="4" step="0.1" value="1.2">
 				</div>
-																				</div>
+   </div>
+  </div>
+ </div>
+
+ <div class="actions">
+   <button class="btn-ghost" id="applyBtn">Apply (autosaves)</button>
+   <button class="btn-primary" id="saveBtn">Save</button>
+   </div>
+  </div>
+
+  <div id="playlistMenu" class="playlist-menu">
+   <div class="playlist-menu-header"
+    id="playlistMenuDrag">
+    <div>Songs</div>
+    <input type="text" id="playlistSearch" placeholder="Search songs..." style="width:calc(96% - 5px);margin-top:10px;padding:8px;border-radius:8px;border:none;background:rgba(255,255,255,0.05);color:var(--text);" />
+</div>
+  <ul id="playlistMenuList"
+    class="playlist-menu-list"></ul>
+ </div>
+
+ <div id="musicPlayer" class="music-player">
+  <div class="player-header">
+   <span id="currentTrackTitle">Loading...</span>
+    <div
+ style="display:flex;align-items:center;gap:8px">
+ <button id="togglePlaylistBtn" title="Show Playlist">
+<svg viewBox="" width="20" height="20" aria-hidden="true" focusable="false"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" fill="currentColor"/></svg>
+</button>
+																				<button id="togglePlayBtn" class="play-btn">
+<svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg>
+<svg viewBox="0 0 24 24" id="pauseIcon" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+</button>
 																			</div>
 																		</div>
-
-																		<div class="actions">
-																			<button class="btn-ghost" id="applyBtn">Apply (autosaves)</button>
-																			<button class="btn-primary" id="saveBtn">Save</button>
+																		<div class="player-controls">
+																			<button id="repeatShuffleBtn" class="control-btn" title="Repeat/Shuffle">
+<svg viewBox="0 0 24 24" id="repeatIcon" style="width:20px;height:20px;fill:currentColor;display:block"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+<svg viewBox="0 0 24 24" id="repeatOneIcon" style="width:20px;height:20px;fill:currentColor;display:none"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4zm-4-1h-2v-2h2v2z"/></svg>
+<svg viewBox="0 0 24 24" id="shuffleIcon" style="width:20px;height:20px;fill:currentColor;display:none"><path d="M10.59 9.17l-1.42 1.42 2.82 2.82 1.42-1.42c1.4-1.4 3.6-1.4 5.06 0l1.41-1.41c-2.12-2.12-5.12-2.31-7.27-.61L8 8.12V6h2V4H6v4h2v1.41l2.59 2.59L12 11.41l-1.41-1.42zm7.41 2.58l-1.42 1.42-2.83-2.83-1.41 1.41c1.4 1.4 3.6 1.4 5.06 0l1.41 1.41c-2.12 2.12-5.12 2.31-7.27.61L8 15.88V18H6v2h4v-4H8v-1.41l2.59-2.59L12 14.59l1.41 1.41 2.83-2.83 1.42-1.42z"/></svg>
+</button>
+																			<button id="prevTrackBtn" class="control-btn">&lt;&lt;</button>
+																			<div id="volumeControl"
+																				class="volume-slider-container">
+																				<input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" title="Volume" />
+</div>
+																				<button id="nextTrackBtn" class="control-btn">&gt;&gt;</button>
+																			</div>
+																			<audio id="audioPlayer" preload="auto"
+																				crossorigin="anonymous"></audio>
 																		</div>
-																	</div>
 
-																	<script>
-																		var DEFAULTS = {
+																		<script>
+																			var DEFAULTS = {
   bg:'#0b0b0b',
   header:'#111111',
   text:'#ffffff',
@@ -1181,10 +1443,12 @@ var gameContainer = document.getElementById("gameContainer");
 var searchInput = document.getElementById("searchInput");
 var gameInfo = document.getElementById("gameInfo").querySelector("p");
 var gameModal = document.getElementById("gameModal");
+
 var gameFrame = document.getElementById("gameFrame");
 var gameTitle = document.getElementById("gameTitle");
 var closeModal = document.getElementById("closeModal");
 var downloadBtn = document.getElementById("downloadBtn");
+
 var fullscreenBtn = document.getElementById("fullscreenBtn");
 var aboutBlankBtn = document.getElementById("aboutBlankBtn");
 var blobBtn = document.getElementById("blobBtn");
@@ -1336,12 +1600,231 @@ applySettings(initial);
 updateSnow(initial.snowCount, initial.snowSize, initial.snowSpeed, initial.snowColor);
 createSnow(initial.snowCount, initial.snowSize);
 drawSnow();
-loadGames();
-setInterval(loadGames, 30000);
-																	</script>
+		loadGames();
+		setInterval(loadGames, 30000);
+																		</script>
 
-	</body>
+																		<script>
+																			(function(){
+  var audioPlayer = document.getElementById('audioPlayer');
+  var togglePlayBtn = document.getElementById('togglePlayBtn');
+  var prevTrackBtn = document.getElementById('prevTrackBtn');
 
-	</html>
+  var nextTrackBtn = document.getElementById('nextTrackBtn');
+  var volumeSlider = document.getElementById('volumeSlider');
+  var currentTrackTitle = document.getElementById('currentTrackTitle');
+  var playIcon = document.getElementById('playIcon');
+  var pauseIcon = document.getElementById('pauseIcon');
+
+  var repeatShuffleBtn = document.getElementById('repeatShuffleBtn');
+  var repeatIcon = document.getElementById('repeatIcon');
+  var repeatOneIcon = document.getElementById('repeatOneIcon');
+  var shuffleIcon = document.getElementById('shuffleIcon');
+  var togglePlaylistBtn = document.getElementById('togglePlaylistBtn');
+  var playlistMenu = document.getElementById('playlistMenu');
+
+  var playlistMenuList = document.getElementById('playlistMenuList');
+  var playlistSearch = document.getElementById('playlistSearch');
+
+  var trackList = [];
+  var originalTrackList = [];
+  var currentTrackIndex = 0;
+  var repeatMode = 1; 
+
+  function updatePlayButton(){
+    var isPlaying = audioPlayer && !audioPlayer.paused;
+    if(playIcon) playIcon.style.display = isPlaying ? 'none' : 'block';
+    if(pauseIcon) pauseIcon.style.display = isPlaying ? 'block' : 'none';
+  }
+
+  function loadTrack(idx, play){
+    if(!trackList || trackList.length===0) return;
+    currentTrackIndex = (idx + trackList.length) % trackList.length;
+    var track = trackList[currentTrackIndex];
+    if(!track) return;
+    try {
+      console.log('Loading track:', track);
+      audioPlayer.src = track.url;
+      audioPlayer.crossOrigin = 'anonymous';
+      currentTrackTitle.textContent = track.title || 'Unknown Track';
+      audioPlayer.load();
+      updatePlaylistMenuUI();
+      if(play){
+        var tryPlay = function(){
+          audioPlayer.play().then(function(){
+            console.log('Playback started for', track.url);
+          }).catch(function(e){
+            console.warn('Play failed (caught) for', track.url, e);
+            currentTrackTitle.textContent = 'Playback blocked — click play';
+          });
+          audioPlayer.removeEventListener('canplay', tryPlay);
+        };
+        audioPlayer.addEventListener('canplay', tryPlay);
+        setTimeout(tryPlay, 500);
+      }
+    } catch(err){
+      console.error('Error loading track', err);
+      currentTrackTitle.textContent = 'Error loading track';
+    }
+  }
+
+  function shuffleArray(arr){
+    for(var i=arr.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var t = arr[i]; arr[i]=arr[j]; arr[j]=t;
+    }
+  }
+
+  function shuffleTracks(){
+    if(originalTrackList && originalTrackList.length){
+      trackList = originalTrackList.slice();
+      shuffleArray(trackList);
+    }
+  }
+
+  function handleTrackEnded(){
+    if(repeatMode===2){
+      audioPlayer.currentTime = 0;
+      audioPlayer.play();
+      return;
+    }
+    if(repeatMode===3){
+      playNextTrack(true);
+      return;
+    }
+    playNextTrack(true);
+  }
+
+  function playNextTrack(shouldPlay){
+    if(!trackList.length) return;
+    var next = currentTrackIndex + 1;
+    if(next >= trackList.length){
+      if(repeatMode===1){ next = 0; }
+      else { audioPlayer.pause(); return; }
+    }
+    loadTrack(next, shouldPlay);
+  }
+
+  function playPrevTrack(){
+    if(!trackList.length) return;
+    var prev = currentTrackIndex - 1;
+    if(prev < 0){
+      if(repeatMode===1) prev = trackList.length-1;
+      else prev = 0;
+    }
+    loadTrack(prev, true);
+  }
+
+  function togglePlayPause(){
+    if(!audioPlayer) return;
+    if(audioPlayer.paused){ audioPlayer.play().catch(function(e){console.warn(e)}); }
+    else audioPlayer.pause();
+    updatePlayButton();
+  }
+
+  function updateRepeatShuffleButton(){
+    if(!repeatShuffleBtn) return;
+    repeatShuffleBtn.classList.remove('active');
+    repeatIcon.style.display='none'; repeatOneIcon.style.display='none'; shuffleIcon.style.display='none';
+    if(repeatMode===1){ repeatIcon.style.display='block'; repeatShuffleBtn.classList.add('active'); repeatShuffleBtn.title='Repeat All'; audioPlayer.loop=false; }
+    else if(repeatMode===2){ repeatOneIcon.style.display='block'; repeatShuffleBtn.classList.add('active'); repeatShuffleBtn.title='Repeat One'; audioPlayer.loop=true; }
+    else if(repeatMode===3){ shuffleIcon.style.display='block'; shuffleIcon.classList.add('shuffle-active'); repeatShuffleBtn.classList.add('active'); repeatShuffleBtn.title='Shuffle'; audioPlayer.loop=false; }
+    else { repeatIcon.style.display='block'; repeatShuffleBtn.title='No Repeat/Shuffle'; audioPlayer.loop=false; }
+  }
+
+  function toggleRepeatMode(){ repeatMode = (repeatMode+1) % 4; updateRepeatShuffleButton(); }
+
+  function togglePlaylistMenu(){
+    if(!playlistMenu) return;
+    var is = playlistMenu.style.display==='flex';
+    playlistMenu.style.display = is ? 'none' : 'flex';
+    if(!is){ var active = playlistMenuList.querySelector('.playlist-item.active'); if(active) active.scrollIntoView({behavior:'smooth',block:'center'}); }
+  }
+
+  function renderPlaylistMenu(){
+    if(!playlistMenuList) return;
+    playlistMenuList.innerHTML = '';
+    for(var i=0;i<trackList.length;i++){
+      var t = trackList[i];
+      var li = document.createElement('li'); li.className='playlist-item'; li.dataset.index = i;
+      li.innerHTML = '<img class="playlist-item-art" src="'+(t.albumArt||'')+'" alt="art"/>'+
+                     '<div class="playlist-item-info"><div class="playlist-item-title">'+(t.title||'Unknown')+'</div><div class="playlist-item-artist">'+(t.artist||'Unknown')+'</div></div>';
+      (function(idx){ li.addEventListener('click', function(){ loadTrack(idx,true); }); })(i);
+      playlistMenuList.appendChild(li);
+    }
+    updatePlaylistMenuUI();
+  }
+
+  function updatePlaylistMenuUI(){
+    if(!playlistMenuList) return;
+    var items = playlistMenuList.querySelectorAll('.playlist-item');
+    for(var i=0;i<items.length;i++){ items[i].classList.remove('active'); }
+    var active = playlistMenuList.querySelector('[data-index="'+currentTrackIndex+'"]'); if(active) active.classList.add('active');
+  }
+
+  if(playlistSearch) playlistSearch.addEventListener('input', function(){
+    var q = playlistSearch.value.toLowerCase();
+    var items = playlistMenuList.querySelectorAll('.playlist-item');
+    for(var i=0;i<items.length;i++){
+      var title = items[i].querySelector('.playlist-item-title').textContent.toLowerCase();
+      var artist = items[i].querySelector('.playlist-item-artist').textContent.toLowerCase();
+      items[i].style.display = (title.indexOf(q)!==-1 || artist.indexOf(q)!==-1) ? 'flex' : 'none';
+    }
+  });
+
+  togglePlayBtn && togglePlayBtn.addEventListener('click', togglePlayPause);
+  nextTrackBtn && nextTrackBtn.addEventListener('click', function(){ playNextTrack(true); });
+  prevTrackBtn && prevTrackBtn.addEventListener('click', playPrevTrack);
+  togglePlaylistBtn && togglePlaylistBtn.addEventListener('click', togglePlaylistMenu);
+  repeatShuffleBtn && repeatShuffleBtn.addEventListener('click', toggleRepeatMode);
+
+  audioPlayer && audioPlayer.addEventListener('ended', handleTrackEnded);
+  audioPlayer && audioPlayer.addEventListener('play', updatePlayButton);
+  audioPlayer && audioPlayer.addEventListener('pause', updatePlayButton);
+  audioPlayer && audioPlayer.addEventListener('error', function(e){
+    try {
+      console.error('Audio error event', e, 'audio.error:', audioPlayer.error);
+      var trackUrl = audioPlayer.src;
+      if(trackUrl){
+        console.log('Attempting fetch to diagnose CORS/network for', trackUrl);
+        fetch(trackUrl, { method: 'GET', mode: 'cors' }).then(function(r){
+          console.log('Fetch response:', r.status, r.type, r.ok);
+          if(!r.ok) currentTrackTitle.textContent = 'Network error: ' + r.status;
+        }).catch(function(fetchErr){
+          console.error('Fetch failed for track (likely CORS or network):', fetchErr);
+          currentTrackTitle.textContent = 'Playback error (see console)';
+        });
+      }
+    } catch(x){ console.error('Error in audio error handler', x); }
+  });
+
+  volumeSlider && volumeSlider.addEventListener('input', function(){ if(audioPlayer) audioPlayer.volume = volumeSlider.value; });
+  if(audioPlayer && volumeSlider) audioPlayer.volume = volumeSlider.value;
+
+  var musicUrl = 'https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io/music.json?cb='+Date.now();
+  fetch(musicUrl).then(function(r){ if(!r.ok) throw new Error('network'); return r.json(); }).then(function(data){
+    if(Array.isArray(data) && data.length){
+      var baseUrl = 'https://raw.githubusercontent.com/elite-gamez/elite-gamez.github.io/main/';
+      originalTrackList = data.map(function(track){
+        var t = Object.assign({}, track);
+        if(t.url && t.url.indexOf('http')!==0) t.url = baseUrl + t.url;
+        if(t.albumArt && t.albumArt.indexOf('http')!==0) t.albumArt = baseUrl + t.albumArt;
+        return t;
+      });
+      trackList = originalTrackList.slice();
+      renderPlaylistMenu();
+      loadTrack(0, false);
+      updateRepeatShuffleButton();
+    } else {
+      currentTrackTitle.textContent = 'No tracks found.';
+    }
+  }).catch(function(err){ console.error('Failed to load music.json', err); currentTrackTitle.textContent='Music load error'; });
+
+})();
+																		</script>
+
+</body>
+
+</html>
 </body>
 <html>
