@@ -509,46 +509,116 @@
 
 <body>
 
-  <!-- 🎵 MUSIC HEADER -->
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Website</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* --- Music Bar Styles --- */
+    .music-header {
+      position: fixed;
+      top: 100px; /* below header */
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      z-index: 99;
+      padding: 5px 0;
+    }
+
+    .music-header button {
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .music-header button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px var(--accent-shadow);
+    }
+
+    #player {
+      position: fixed;
+      top: 150px; /* below header + buttons */
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      max-width: 600px;
+      z-index: 99;
+      display: flex;
+      justify-content: center;
+      padding: 5px 0;
+    }
+
+    #player iframe {
+      width: 100%;
+      height: 80px; /* compact height */
+      border-radius: 12px;
+      border: none;
+    }
+
+    @media (max-width: 700px) {
+      #player iframe {
+        height: 60px;
+      }
+      .music-header button {
+        padding: 4px 8px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header (example) -->
+  <header>
+    <h1>My Website</h1>
+  </header>
+
+  <!-- 🎵 Music Buttons -->
   <div class="music-header">
-    <button class="genre-btn" onclick="loadPlaylist('gaming')">💀PHONK</button>
+    <button class="genre-btn" onclick="loadPlaylist('gaming')">💀 PHONK</button>
     <button class="genre-btn" onclick="loadPlaylist('lofi')">RAP</button>
     <button class="genre-btn" onclick="loadPlaylist('hiphop')">🔥 Hip-Hop</button>
     <button class="genre-btn" onclick="loadPlaylist('edm')">⚡ NEMZZZ</button>
   </div>
 
-  <!-- 🎧 PLAYER -->
+  <!-- 🎧 Player -->
   <div id="player">
     <p>Select a genre to play music</p>
   </div>
 
-  <!-- 🎼 SCRIPT -->
+  <!-- 🎼 Script -->
   <script>
     const playlists = {
-      PHONK💀: "<iframe data-testid="embed-iframe" style="border-radius:12px" 
-		src="https://open.spotify.com/embed/playlist/37i9dQZF1DWWY64wDtewQt?utm_source=generator"
-		width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay;
-			clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>",
-      RAP🎤: "<iframe data-testid="embed-iframe" style="border-radius:12px" 
-			src="https://open.spotify.com/embed/playlist/7EnIitpBIDp8hbqoaOWfQO?utm_source=generator"
-			width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; 
-				clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>",
-      hiphop: "<iframe data-testid="embed-iframe" style="border-radius:12px" 
-				src="https://open.spotify.com/embed/playlist/62y3BHKehWnb1hlaPclDAA?utm_source=generator"
-				width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; 
-					clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>",
-      NEMZZZ: "<iframe data-testid="embed-iframe" style="border-radius:12px" 
-					src="https://open.spotify.com/embed/playlist/7Io7kStlJqhDXM03pGyWE4?utm_source=generator"
-					width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; 
-						clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>"
+      gaming: "https://open.spotify.com/embed/playlist/37i9dQZF1DWWY64wDtewQt?utm_source=generator",
+      lofi: "https://open.spotify.com/embed/playlist/7EnIitpBIDp8hbqoaOWfQO?utm_source=generator",
+      hiphop: "https://open.spotify.com/embed/playlist/62y3BHKehWnb1hlaPclDAA?utm_source=generator",
+      edm: "https://open.spotify.com/embed/playlist/7Io7kStlJqhDXM03pGyWE4?utm_source=generator"
     };
 
     function loadPlaylist(genre) {
+      const url = playlists[genre];
+      if (!url) return;
+
       document.getElementById("player").innerHTML = `
         <iframe 
-          src="${playlists[genre]}"
-          allow="autoplay; encrypted-media">
+          src="${url}" 
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
         </iframe>
+      `;
+    }
+  </script>
+</body>
+</html>
       `;
     }
   </script>
