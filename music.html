@@ -1,1 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Music Search</title>
+  <style>
+    body {
+      background: #0f0f0f;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
 
+    .genre-btn {
+      background: #5865F2;
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      margin: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .genre-btn:hover {
+      background: #4752c4;
+    }
+
+    iframe {
+      margin-top: 20px;
+      border-radius: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎧 Music Search</h1>
+  <p>Select a genre to load a playlist</p>
+
+  <button class="genre-btn" onclick="loadPlaylist('gaming')">🎮 Gaming</button>
+  <button class="genre-btn" onclick="loadPlaylist('lofi')">🌙 Lofi</button>
+  <button class="genre-btn" onclick="loadPlaylist('hiphop')">🔥 Hip Hop</button>
+  <button class="genre-btn" onclick="loadPlaylist('edm')">⚡ EDM</button>
+
+  <div id="player"></div>
+
+  <script>
+    const playlists = {
+      gaming: "https://open.spotify.com/embed/playlist/37i9dQZF1DX6GwdWRQMQpq",
+      lofi: "https://open.spotify.com/embed/playlist/37i9dQZF1DXdbXrPNafg9d",
+      hiphop: "https://open.spotify.com/embed/playlist/37i9dQZF1DX0XUsuxWHRQd",
+      edm: "https://open.spotify.com/embed/playlist/37i9dQZF1DX4dyzvuaRJ0n"
+    };
+
+    function loadPlaylist(genre) {
+      document.getElementById("player").innerHTML = `
+        <iframe width="100%" height="152"
+        src="${playlists[genre]}"
+        frameborder="0"
+        allow="encrypted-media"></iframe>
+      `;
+    }
+  </script>
+
+</body>
+</html>
