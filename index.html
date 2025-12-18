@@ -578,12 +578,85 @@
   </style>
 </head>
 <body>
-  <!-- Header (example) -->
+  
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Website</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* --- Music Bar Styles --- */
+    .music-header {
+      position: fixed;
+      top: 100px; /* below header */
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      z-index: 99;
+      padding: 5px 0;
+    }
+
+    .music-header button {
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .music-header button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px var(--accent-shadow);
+    }
+
+    #player {
+      position: fixed;
+      top: 150px; /* below header + buttons */
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      max-width: 600px;
+      z-index: 99;
+      display: flex;
+      justify-content: center;
+      padding: 5px 0;
+    }
+
+    #player iframe {
+      width: 100%;
+      height: 80px; /* compact height */
+      border-radius: 12px;
+      border: none;
+    }
+
+    @media (max-width: 700px) {
+      #player iframe {
+        height: 60px;
+      }
+      .music-header button {
+        padding: 4px 8px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ================= HEADER ================= -->
   <header>
     <h1>My Website</h1>
+    <input type="text" placeholder="Search...">
+    <button id="discordBtn">Discord</button>
+    <button id="customizeBtn">Customize</button>
   </header>
 
-  <!-- 🎵 Music Buttons -->
+  <!-- ================= MUSIC BUTTONS ================= -->
   <div class="music-header">
     <button class="genre-btn" onclick="loadPlaylist('gaming')">💀 PHONK</button>
     <button class="genre-btn" onclick="loadPlaylist('lofi')">RAP</button>
@@ -591,24 +664,58 @@
     <button class="genre-btn" onclick="loadPlaylist('edm')">⚡ NEMZZZ</button>
   </div>
 
-  <!-- 🎧 Player -->
+  <!-- ================= MUSIC PLAYER ================= -->
   <div id="player">
     <p>Select a genre to play music</p>
   </div>
 
-  <!-- 🎼 Script -->
+  <!-- ================= GAME INFO ================= -->
+  <div id="gameInfo">
+    <p>Some game information here...</p>
+  </div>
+
+  <!-- ================= GAME CONTAINER ================= -->
+  <div id="gameContainer">
+    <!-- Example game card -->
+    <div class="game-card">
+      <img src="game1.png" alt="Game 1">
+      <h2>Game 1</h2>
+      <p>Fun game description</p>
+    </div>
+    <div class="game-card">
+      <img src="game2.png" alt="Game 2">
+      <h2>Game 2</h2>
+      <p>Another game description</p>
+    </div>
+    <!-- Add more game cards here -->
+  </div>
+
+  <!-- ================= MODAL ================= -->
+  <div class="modal" id="myModal">
+    <div class="modal-content">
+      <button id="closeModal">×</button>
+      <h2 id="gameTitle">Game Title</h2>
+      <iframe id="gameFrame"></iframe>
+      <div class="controls">
+        <button>Start</button>
+        <button>Stop</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SCRIPT ================= -->
   <script>
+    // Spotify Playlists
     const playlists = {
-      PHONK: "https://open.spotify.com/embed/playlist/37i9dQZF1DWWY64wDtewQt?utm_source=generator",
-      RAP: "https://open.spotify.com/embed/playlist/7EnIitpBIDp8hbqoaOWfQO?utm_source=generator",
+      gaming: "https://open.spotify.com/embed/playlist/37i9dQZF1DWWY64wDtewQt?utm_source=generator",
+      lofi: "https://open.spotify.com/embed/playlist/7EnIitpBIDp8hbqoaOWfQO?utm_source=generator",
       hiphop: "https://open.spotify.com/embed/playlist/62y3BHKehWnb1hlaPclDAA?utm_source=generator",
-      NEMZZ: "https://open.spotify.com/embed/playlist/7Io7kStlJqhDXM03pGyWE4?utm_source=generator"
+      edm: "https://open.spotify.com/embed/playlist/7Io7kStlJqhDXM03pGyWE4?utm_source=generator"
     };
 
     function loadPlaylist(genre) {
       const url = playlists[genre];
       if (!url) return;
-
       document.getElementById("player").innerHTML = `
         <iframe 
           src="${url}" 
@@ -616,12 +723,16 @@
         </iframe>
       `;
     }
+
+    // Modal functionality example
+    const modal = document.getElementById('myModal');
+    const closeModal = document.getElementById('closeModal');
+    closeModal.onclick = () => modal.style.display = 'none';
   </script>
 </body>
 </html>
-      `;
-    }
-  </script>
+
+     
 
 </body>
 </html>
