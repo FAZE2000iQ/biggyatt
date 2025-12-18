@@ -13,7 +13,7 @@ var blobBtn = document.getElementById("blobBtn");
 var discordBtn = document.getElementById("discordBtn");
 
 discordBtn.onclick = function(){
-  window.open("https://discord.gg/FGK4VBJTyd", "_blank");
+  window.open("https://discord.gg/CePuBdNnAj", "_blank");
 };
 
 var gamesData = [];
