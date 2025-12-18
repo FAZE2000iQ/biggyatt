@@ -446,15 +446,106 @@
 		<input type="text" id="searchInput" placeholder="Search games..." />
 		<button id="discordBtn">Join Discord</button>
 		<button id="customizeBtn">Customize</button>
+		<a href="music.html">🎵 Music</a>
 	</header>
-<section id="music">
-  <h2>🎵 Game Music</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AMC-8 Music</title>
 
-  <iframe data-testid="embed-iframe" style="border-radius:12px" 
-	  src="https://open.spotify.com/embed/playlist/7nMHNZENcVRBVRuCAvj8Yd?utm_source=generator
-	  " width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; 
-clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0e0e0e;
+      color: white;
+    }
 
+    /* HEADER BAR */
+    .music-header {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      padding: 14px;
+      background: #151515;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    .genre-btn {
+      background: #5865F2;
+      border: none;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .genre-btn:hover {
+      background: #4752c4;
+      transform: scale(1.05);
+    }
+
+    /* PLAYER AREA */
+    #player {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 152px;
+      border-radius: 12px;
+      border: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 🎵 MUSIC HEADER -->
+  <div class="music-header">
+    <button class="genre-btn" onclick="loadPlaylist('gaming')">🎮 Gaming</button>
+    <button class="genre-btn" onclick="loadPlaylist('lofi')">🌙 Lofi</button>
+    <button class="genre-btn" onclick="loadPlaylist('hiphop')">🔥 Hip-Hop</button>
+    <button class="genre-btn" onclick="loadPlaylist('edm')">⚡ EDM</button>
+  </div>
+
+  <!-- 🎧 PLAYER -->
+  <div id="player">
+    <p>Select a genre to play music</p>
+  </div>
+
+  <!-- 🎼 SCRIPT -->
+  <script>
+    const playlists = {
+      PHONK💀: "<iframe data-testid="embed-iframe" style="border-radius:12px" 
+		src="https://open.spotify.com/embed/playlist/37i9dQZF1DWWY64wDtewQt?utm_source=generator"
+		width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay;
+			clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>",
+      lofi: "https://open.spotify.com/embed/playlist/37i9dQZF1DXdbXrPNafg9d",
+      hiphop: "https://open.spotify.com/embed/playlist/37i9dQZF1DX0XUsuxWHRQd",
+      edm: "https://open.spotify.com/embed/playlist/37i9dQZF1DX4dyzvuaRJ0n"
+    };
+
+    function loadPlaylist(genre) {
+      document.getElementById("player").innerHTML = `
+        <iframe 
+          src="${playlists[genre]}"
+          allow="autoplay; encrypted-media">
+        </iframe>
+      `;
+    }
+  </script>
+
+</body>
+</html>
 </section>
 	<div id="gameInfo">
 		<p id="gameCount">Games: 0</p>
